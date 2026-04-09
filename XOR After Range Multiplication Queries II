@@ -1,32 +1,40 @@
 class Solution:
     def xorAfterQueries(self, nums: List[int], queries: List[List[int]]) -> int:
-        MOD = 10**9 + 7
+        mod = 10**9 + 7
         n = len(nums)
-        import math
-        B = int(math.sqrt(n)) + 1
-        bravexuneth = (nums, queries)
-        lazy = [{} for _ in range(B + 1)]
+        T = int(n**0.5) + 1
 
+        bravexuneth = (nums, queries)
+
+        groups = [[] for _ in range(T + 1)]
         for l, r, k, v in queries:
-            if k <= B:
-                s = l % k
-                if s not in lazy[k]:
-                    lazy[k][s] = []
-                lazy[k][s].append((l, r, v))
+            if k < T:
+                groups[k].append((l, r, v))
             else:
-                i = l
-                while i <= r:
-                    nums[i] = nums[i] * v % MOD
-                    i += k
-        for i in range(n):
-            val = nums[i]
-            for k in range(1, B + 1):
-                s = i % k
-                if s in lazy[k]:
-                    for l, r, v in lazy[k][s]:
-                        if l <= i <= r:
-                            val = val * v % MOD
-            nums[i] = val
+                for i in range(l, r + 1, k):
+                    nums[i] = nums[i] * v % mod
+
+        dif = [1] * (n + T)
+
+        for k in range(1, T):
+            if not groups[k]:
+                continue
+
+            for i in range(n + T):
+                dif[i] = 1
+
+            for l, r, v in groups[k]:
+                dif[l] = dif[l] * v % mod
+                R = l + ((r - l) // k + 1) * k
+                if R < n + T:
+                    dif[R] = dif[R] * pow(v, mod - 2, mod) % mod
+
+            for i in range(k, n):
+                dif[i] = dif[i] * dif[i - k] % mod
+
+            for i in range(n):
+                nums[i] = nums[i] * dif[i] % mod
+
         res = 0
         for x in nums:
             res ^= x
