@@ -1,0 +1,29 @@
+class Solution:
+    def solveQueries(self, nums: List[int], queries: List[int]) -> List[int]:
+        n = len(nums)
+        mp = defaultdict(list)
+        
+        for i, v in enumerate(nums):
+            mp[v].append(i)
+        
+        for v in mp:
+            arr = mp[v]
+            mp[v] = [arr[-1] - n] + arr + [arr[0] + n]
+        
+        ans = []
+        
+        for q in queries:
+            arr = mp[nums[q]]
+            
+            if len(arr) == 3:
+                ans.append(-1)
+                continue
+            
+            i = bisect.bisect_left(arr, q)
+            
+            left = arr[i] - arr[i - 1]
+            right = arr[i + 1] - arr[i]
+            
+            ans.append(min(left, right))
+        
+        return ans
