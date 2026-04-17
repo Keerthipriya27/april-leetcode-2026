@@ -1,0 +1,12 @@
+class Solution:
+    def minMirrorPairDistance(self, nums: List[int]) -> int:
+        mp = {}
+        result = float('inf')
+        
+        for idx, val in enumerate(nums):
+            if val in mp:
+                result = min(result, idx - mp[val])
+            
+            mp[int(str(val)[::-1])] = idx
+        
+        return -1 if result == float('inf') else result
